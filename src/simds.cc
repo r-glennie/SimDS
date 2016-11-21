@@ -384,7 +384,7 @@ void SimulateSurvey(SurveyDat survey_dat, double dt) {
   }
 
   // open file to write data to
-  std::ofstream dat("./mcds/data.txt");
+  std::ofstream dat("../mcds/data.txt");
 
   // perform survey 
   double num_timesteps = floor(line.length() / (dt * observer.speed()));
@@ -422,7 +422,7 @@ void SimulateSurvey(SurveyDat survey_dat, double dt) {
 // Outputs:
 //   writes a file named "output.txt" with the model results
 void FitModel() {
-  int r = system("cd mcds; wine MCDS 0, command.txt"); 
+  int r = system("cd ../mcds; wine MCDS 0, command.txt"); 
 }
 
 
@@ -437,10 +437,10 @@ void FitModel() {
 //   save_log: if TRUE, the MCDS log files are saved also (to check for convergence problems)
 void Clean(int num, bool save_log = false) {
   std::stringstream cmd; 
-  cmd << "mv ./mcds/data.txt ../results/data_" << num << ".txt"; 
+  cmd << "mv ../mcds/data.txt ../results/data_" << num << ".txt"; 
   int r = system(cmd.str().c_str()); 
   cmd.str(""); 
-  cmd << "mv ./mcds/output.txt ../results/output_" << num << ".txt"; 
+  cmd << "mv ../mcds/output.txt ../results/output_" << num << ".txt"; 
   r = system(cmd.str().c_str());  
   if (save_log) {
     cmd.str("");
