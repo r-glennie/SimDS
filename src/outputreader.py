@@ -1,12 +1,19 @@
+# Python script reads MCDS output files and returns csv file 
+# with parameter estimates for each simulated output file. 
+
+# csv file that estimates are to be written to 
 results = open("results.txt",'w')
 
+# number of simulated output files there are
 no_of_files = 100
 
 adjust=0 
 
+# headers 
 results.write("A1, A2, A3, density, se \n")
 for i in range(1,no_of_files+1):
-    filename = "./SavedOutputs/output"+str(i)+".txt"
+    # assumed that output files are named "output_<simulation_number>.txt" 
+    filename = "./output_"+str(i)+".txt"
     outfile = open(filename,'r')
     for line in outfile:
         next=0
@@ -27,7 +34,6 @@ for i in range(1,no_of_files+1):
                 adjust=0
             if (next==1): 
                 adjust=1
-                
-            
+
     outfile.close()
 results.close()
