@@ -1,0 +1,35 @@
+output.txt
+log.txt 
+stats.txt 
+plot.txt 
+None
+None
+Options;
+Type=Line;
+Length /Measure='Meter';
+Distance=Perp /Measure='Meter'; 
+Area /Units='Sq. kilometers'; 
+Object=Single;
+SF=1.0;
+Selection=Sequential;
+Maxterms=2;
+Confidence=95;
+Print=Selection;
+End;
+Data /Structure=Flat;
+Fields=SMP_LABEL,SMP_EFFORT,DISTANCE;
+Infile=data.txt /NoEcho; 
+End;
+Estimate;
+Distance /Width=30;
+Density=All;
+Encounter=All;
+Detection=All;
+Size=All;
+Estimator /Key=HAZARD /Adjust=CO /Criterion=AIC /NAP=0;
+Monotone=Strict;
+Pick=AIC;
+GOF;
+Cluster/Bias=GXLOG;
+VarN=Empirical;
+End;
