@@ -19,7 +19,7 @@ behaviour <- 1
 observer.speed <- 1
 num.transects <- 50
 # parameter contains (c, d) detection parameters for continuous hazard 
-# (see p Advanced Distance Sampling) 
+# (see p338 Advanced Distance Sampling) 
 # Afterward, parameter contains movement parameters: 
 # behaviour = 0 (no parameters added), 1 (add animal speed), 2 (add c, tau parameters (see Gillespie et al (1996) for parameterisation) 
 parameter <- c(100, 3, 1) 
