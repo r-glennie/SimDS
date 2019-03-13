@@ -177,12 +177,14 @@ class Animal {
 class Observer {
   public:
     Observer(); 
-    Observer(double v, vec detection_parameter) : x_(0), y_(0), v_(v), detection_parameter_(detection_parameter){}   
+    Observer(double v, vec detection_parameter) : x_(0), y_(0), v_(v), see_behind_(false), detection_parameter_(detection_parameter){}  
+    Observer(double v, vec detection_parameter, bool see_behind) : x_(0), y_(0), v_(v), see_behind_(see_behind), detection_parameter_(detection_parameter){}   
 
     // accessor functions 
     const double x() const {return x_;}
     const double y() const {return y_;} 
     const double speed() const {return v_;} 
+    const bool see_behind() const {return see_behind_;}
     const vec detection_parameter() const {return detection_parameter_;} 
 
     // mutator functions
@@ -198,6 +200,7 @@ class Observer {
     double x_;
     double y_; 
     double v_;
+    bool see_behind_; 
     vec detection_parameter_;  
 }; 
 
@@ -210,6 +213,7 @@ struct SurveyDat {
   int behaviour; 
   vec movement_parameter;   
   double observer_speed;
+  bool see_behind; 
   vec detection_parameter;  
   int num_transects; 
 };
@@ -227,10 +231,7 @@ struct SurveyDat {
 void Animal::accumulate_hazard(const Observer observer, double dt) {
   double rel_x = x() - observer.x(); 
   double rel_y = y() - observer.y(); 
-  // animals are assumed to be detectable iff they are available and 
-  // are positioned in FRONT of the observer
-  // (this was a somewhat arbitrary choice, no reason that y > 0 is needed) 
-  if (available() & rel_y > 0) {
+  if (available() & (observer.see_behind() || (!observer.see_behind() && rel_y > 0))) {
     double r0 = rel_x * rel_x + rel_y * rel_y;
     double y1 = rel_y - observer.speed() * dt;
     // if y1 < 0 but y > 0, animal lies in front of observer now 
@@ -238,6 +239,13 @@ void Animal::accumulate_hazard(const Observer observer, double dt) {
     // only survey up until y1 = 0  
     if (y1 < 0) y1 = 0; 	
     double r1 = rel_x * rel_x + y1 * y1;
+    // if animal behind observer for whole time-step, then switch r0 and r1 as
+    // you want to integrate from higher r to lower r 
+    if (rel_y < 0) {
+      double temp = r0; 
+      r0 = r1; 
+      r1 = temp; 
+    }
     // animals at same position as observer causes overflow in hazard, 
     // so handle seperately.  
     if (r1 < 1e-10) accumulated_hazard_ = arma::datum::inf; 
@@ -377,7 +385,7 @@ void SimulateSurvey(SurveyDat survey_dat, double dt) {
   LineTransect line(survey_dat.line_size);
   int num_animals = survey_dat.population_size;  
   std::vector<Animal> population(num_animals);
-  Observer observer(survey_dat.observer_speed, survey_dat.detection_parameter); 
+  Observer observer(survey_dat.observer_speed, survey_dat.detection_parameter, survey_dat.see_behind); 
   for (int animal = 0; animal < num_animals; ++animal) {
     population[animal].set_behaviour(survey_dat.behaviour);
     population[animal].set_movement_parameter(survey_dat.movement_parameter); 
@@ -477,6 +485,7 @@ void Simulate(int num_simulations, vec parameter, vec simulation_dat, double dt 
   int num_transects = simulation_dat(7);
   vec detection_parameter = parameter.rows(0,1); 
   vec movement_parameter = arma::zeros<vec>(2); 
+  bool see_behind = simulation_dat(8); 
   switch (behaviour) {
     case 1: 
       movement_parameter(0) = parameter(2); 
@@ -485,7 +494,7 @@ void Simulate(int num_simulations, vec parameter, vec simulation_dat, double dt 
       movement_parameter = parameter.rows(2,3);
       break;  
   }
-  SurveyDat survey_dat = {population_size, region_size, line_size, behaviour, movement_parameter, observer_speed, detection_parameter, num_transects}; 	
+  SurveyDat survey_dat = {population_size, region_size, line_size, behaviour, movement_parameter, observer_speed, see_behind, detection_parameter, num_transects}; 	
 
   for (int sim = 0; sim < num_simulations; ++sim) {
     cout << sim + 1 << " / " << num_simulations << "\n"; 

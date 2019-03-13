@@ -15,8 +15,9 @@ region.size <- c(1000, 1000)
 line.size <- c(60, 1000) 
 # behaviour = 0 (no movement), 1 (linear movement constant speed, random direction),
 # 2 (OU home-range movement) 
-behaviour <- 1
+behaviour <- 0
 observer.speed <- 1
+see.behind <- TRUE 
 num.transects <- 50
 # parameter contains (c, d) detection parameters for continuous hazard 
 # (see p338 Advanced Distance Sampling) 
@@ -24,10 +25,11 @@ num.transects <- 50
 # behaviour = 0 (no parameters added), 1 (add animal speed), 2 (add c, tau parameters (see Gillespie et al (1996) for parameterisation) 
 parameter <- c(100, 3, 1) 
 
-# run simulation 
-sim.dat <- c(population.size, region.size, line.size, behaviour, observer.speed, num.transects) 
 
-num.simulations <- 100
+# run simulation 
+sim.dat <- c(population.size, region.size, line.size, behaviour, observer.speed, num.transects, see.behind) 
+
+num.simulations <- 10
 dt <- 1
 
-Simulate(num.simulations, parameter, sim.dat, dt) 
+system.time(Simulate(num.simulations, parameter, sim.dat, dt))
