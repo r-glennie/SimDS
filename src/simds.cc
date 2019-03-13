@@ -399,7 +399,7 @@ void SimulateSurvey(SurveyDat survey_dat, double dt) {
       for (int animal = 0; animal < num_animals; ++animal) { 
         // animal detection is recorded if animal is seen INSIDE transect only
         // (but notice this does not ignore animals seen outside transect, it merely doesn't record them)  
-        if (observer.detect(population[animal], dt) && fabs(population[animal].x() - observer.x()) <= line.width()/2.0) {
+        if (observer.detect(population[animal], dt) && fabs(population[animal].x() - observer.x()) <= line.width()/2.0 && population[animal].y() < line.length()) {
           dat << transect << "\t"  << line.length() << "\t" << fabs(population[animal].x() - observer.x()) << "\n";
           ++num_detected; 
         } 
